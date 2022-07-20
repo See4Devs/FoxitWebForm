@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Foxit PDF SDK For Web</title>
+    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../../../lib/PDFViewCtrl.css">
+</head>
+
+<body>
+    <div id="pdf-viewer"></div>
+    <script src="./js/license-key.js"></script>
+    <script src="./lib/PDFViewCtrl.full.js"></script>
+    <script>
+        window.$ = PDFViewCtrl.jQuery;
+        let IStateHandler = PDFViewCtrl.IStateHandler;
+        var PDFViewer = PDFViewCtrl.PDFViewer;
+        var pdfViewer = new PDFViewer({
+            libPath: './lib',
+            jr: {
+                licenseSN: licenseSN,
+                licenseKey: licenseKey,
+            }
+        });
+        pdfViewer.init('#pdf-viewer');
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', './RegistrationForm.pdf', true);
+        xhr.responseType = 'blob';
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState !== 4) {
+                return;
+            }
+            var status = xhr.status;
+            if ((status >= 200 && status < 300) || status === 304) {
+                pdfViewer.openPDFByFile(xhr.response);
+            }
+        };
+        xhr.send();
+
+        var FieldTypes = PDFViewCtrl.PDF.form.constant.Field_Type;
+
+        var formfiledsJson = [{ 
+            pageIndex: 0, fieldName: 'FirstName', fieldType: FieldTypes.Text, rect: { 
+                left: 72, 
+                right: 541, 
+                top: 657, 
+                bottom: 640, 
+            } 
+        }, 
+        { 
+            pageIndex: 0, fieldName: 'LastName', fieldType: FieldTypes.Text, rect: { 
+                left: 72, 
+                right: 541, 
+                top: 612, 
+                bottom: 595, 
+            } 
+        },
+        {
+            pageIndex: 0, fieldName: 'age', fieldType: FieldTypes.Text, rect: {
+                left: 72, 
+                right: 541, 
+                top: 567, 
+                bottom: 550, 
+            }
+        },
+        {
+            pageIndex: 0, fieldName: 'email', fieldType: FieldTypes.Text, rect: {
+                left: 72, 
+                right: 541, 
+                top: 522, 
+                bottom: 505, 
+            }
+        },
+        {
+            pageIndex: 0, fieldName: 'phone', fieldType: FieldTypes.Text, rect: {
+                left: 72, 
+                right: 541, 
+                top: 477, 
+                bottom: 460, 
+            }
+        },
+        {
+            pageIndex: 0, fieldName: 'dob', fieldType: FieldTypes.Text, rect: {
+                left: 72,
+                right: 541,
+                top: 432,
+                bottom: 415,
+            }
+        }];
+
+        pdfViewer.getEventEmitter().on(PDFViewCtrl.Events.renderFileSuccess, function (PDFDoc) {
+            PDFDoc.loadPDFForm().then(function (PDFForm) {
+                PDFDoc.getPDFForm();
+                var taskList = []
+                formfiledsJson.map(function (json) {
+                    taskList.push(PDFForm.addControl(json.pageIndex, json.fieldName, json.fieldType, json.rect));
+                });
+
+                Promise.all(taskList).then(function (results) {
+                    results.map(function (result,index) {
+                        if(!result){
+                            console.error("can't add control");
+                            return;
+                        }
+                        //prefill the form
+                        var field = PDFForm.getField(formfiledsJson[index].fieldName)
+                        field.form.fields[0].setValue("John");
+                        field.form.fields[1].setValue("Doe");
+                        field.form.fields[2].setValue("21");
+                        field.form.fields[3].setValue("john.doe@gmail.com");
+                        field.form.fields[4].setValue("0143367789");
+                        field.form.fields[5].setValue("11-11-1996");
+                    })
+                });
+            })
+        })
+    </script>
+</body>
+
+</html>
