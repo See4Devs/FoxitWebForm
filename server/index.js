@@ -41,19 +41,7 @@ server.listen(port, () => {
         const address = details.address === '::' ? 'localhost' : details.address;
         localAddress = `http://${address}:${details.port}/`;
     }
-//     if(localAddress) {
-//         console.log(boxen(`
-// ${chalk.bold('Basic WebViewer Address')}: ${chalk.cyan(localAddress+'examples/PDFViewCtrl/basic_webViewer/')}
-
-// ${chalk.bold('Complete WebViewer Address')}: ${chalk.cyan(localAddress+'examples/UIExtension/complete_webViewer/')}
-//         `, {
-//             borderColor: 'green',
-//             borderStyle: 'bold',
-//             padding: 1,
-//             margin: 1
-//         }));
-//     }
-
+    
     if(localAddress) {
         console.log(boxen(`${chalk.bold('Basic Form')}: ${chalk.cyan(localAddress)}index.html
         `, {
